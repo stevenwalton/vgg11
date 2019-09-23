@@ -31,7 +31,7 @@ class VGG(nn.Module):
                                       nn.MaxPool2d(kernel_size=2, stride=2),
                                       )
 
-        self.max_pool = nn.AdaptiveAvgPool2d(output_size=(7,7))
+        self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.linear = nn.Sequential(nn.Linear(25088, 4096),
                                     nn.ReLU(inplace=inplace),
                                     nn.Linear(4096, 4096),
