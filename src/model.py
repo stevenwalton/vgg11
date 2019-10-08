@@ -34,8 +34,10 @@ class VGG(nn.Module):
         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.linear = nn.Sequential(nn.Linear(25088, 4096),
                                     nn.ReLU(inplace=inplace),
+                                    nn.Dropout(p=0.5, inplace=inplace),
                                     nn.Linear(4096, 4096),
                                     nn.ReLU(inplace=inplace),
+                                    nn.Dropout(p=0.5, inplace=inplace),
                                     nn.Linear(4096, 1000)
                                     )
         self.sig = nn.Sigmoid()
@@ -46,7 +48,9 @@ class VGG(nn.Module):
         '''
         x = self.features(x)
         x = self.max_pool(x)
+        print(f"{x.size()}")
         x = x.view(-1)
+        print(f"{x.size()}")
         x = self.linear(x)
         return self.sig(x)
 
