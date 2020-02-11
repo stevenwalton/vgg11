@@ -1,6 +1,8 @@
 import torch
 from torch import optim
 
+import model 
+
 def trainNet(datapath='.',
              nepochs=1,
              learning_rate=0.1,
@@ -13,9 +15,10 @@ def trainNet(datapath='.',
     Our basic training file
     '''
 
-    criterion = nn.MSELoss()
-    for epoch in range(nepochs):
-        net.train()
-        epoch_loss = 0
-        for i, (img, label) in enumerate(data):
-
+    model = model.VGG()
+    print(model())
+    #criterion = nn.MSELoss()
+    #for epoch in range(nepochs):
+    #    net.train()
+    #    epoch_loss = 0
+    #    for i, (img, label) in enumerate(data):
