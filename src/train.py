@@ -15,8 +15,12 @@ def trainNet(datapath='.',
     Our basic training file
     '''
 
-    model = model.VGG()
-    print(model())
+    if cuda:
+        print(f"Running on GPU")
+        model = model.VGG().cuda()
+    else:
+        print(f"Running on CPU").cpu()
+        model = model.VGG()
     #criterion = nn.MSELoss()
     #for epoch in range(nepochs):
     #    net.train()

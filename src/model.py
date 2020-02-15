@@ -4,9 +4,7 @@ from torch import nn
 def convDown(_in, _out, kernel_size=3,
              padding=1, stride=1, inplace=True,
              maxPool=False, kernel_size_mp=2, stride_mp=2):
-    '''
-    Function Definition for our convolutional layers
-    '''
+    ''' Function Definition for our convolutional layers '''
     layers = [nn.Conv2d(_in,_out, kernel_size=kernel_size, 
                             padding=padding, stride=stride)]
     layers.append(nn.ReLU(inplace=inplace))
@@ -17,6 +15,7 @@ def convDown(_in, _out, kernel_size=3,
 
 def linearBlock(_in, _out, last=False,
                 inplace=True, p=0.5, inplace_dr=False):
+    ''' Blocks for the classifier '''
     layers = [nn.Linear(_in, _out)]
     if not last:
         layers.append(nn.ReLU(inplace=inplace))
@@ -92,7 +91,6 @@ class VGG(nn.Module):
                                     nn.Linear(4096, 1000)
                                     )
         '''
-        #self.sig = nn.Sigmoid()
 
     def forward(self,x):
         '''
@@ -100,9 +98,6 @@ class VGG(nn.Module):
         '''
         x = self.features(x)
         x = self.avgpool(x)
-        #print(f"{x.size()}")
         x = x.view(-1)
-        #print(f"{x.size()}")
         x = self.classifier(x)
         return x
-        #return self.sig(x)
