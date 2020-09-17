@@ -45,7 +45,7 @@ class VGG(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(output_size=adaptivePoolSize)
 
         # Making classifier
-        classificationSize = 1000
+        classificationSize = 10
         linearSizes = [(adaptivePoolSize[0]*adaptivePoolSize[1])*convSizes[-1], 4096, 4096,
                        classificationSize]
         classifier = []
@@ -96,8 +96,9 @@ class VGG(nn.Module):
         '''
         Our forward implementation
         '''
+        B,C,_,_ = x.shape
         x = self.features(x)
         x = self.avgpool(x)
-        x = x.view(-1)
+        x = x.view(B,-1)
         x = self.classifier(x)
         return x
