@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch import optim
 from torch import nn
@@ -5,6 +6,7 @@ from torchvision import transforms
 from torchvision import datasets
 
 import model 
+import utils
 
 def trainNet(datapath='.',
              nepochs=1,
@@ -18,7 +20,8 @@ def trainNet(datapath='.',
     '''
     Our basic training file
     '''
-
+    if "/" not in savedir[-1]:
+        savedir += "/"
     if cuda:
         print(f"Running on GPU")
         device = torch.device('cuda')
@@ -60,6 +63,8 @@ def trainNet(datapath='.',
         print(f"Epoch {epoch} loss {epoch_loss}")
         epoch_loss_array[epoch] = epoch_loss
 
+    utils.plot_loss(epoch_loss_array, savedir + lossPlotName)
+
     # Testing
     with torch.no_grad():
         test_loss = 0.
@@ -69,10 +74,35 @@ def trainNet(datapath='.',
                                                 batch_size=batch_size,
                                                 shuffle=True,
                                                 num_workers=num_workers)
+        classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog',
+                'horse', 'ship', 'truck']
+        corrects = np.zeros(len(classes),dtype=np.int)
+        totals = np.zeros(len(classes),dtype=np.int)
         for i,(img, label) in enumerate(test_data):
             optimizer.zero_grad()
             out = net(img.to(device))
+            for o,l in zip(out, label):
+                o = o.to('cpu').numpy()
+                l = l.to('cpu').numpy()
+                totals[l] += 1
+                if np.argmax(o) == l:
+                    corrects[l] += 1
             loss = criterion(out.to(device), label.to(device))
             test_loss += loss.item()
+            if i == 0:
+                utils.plot_examples(img[:9].to('cpu'),
+                                    out[:9].to('cpu').numpy(), 
+                                    classes, 
+                                    label[:9].to('cpu').numpy(),
+                                    savedir + "examples.png")
         test_loss /= (i+1)
     print(f"Test loss {test_loss}")
+    torch.save(net.state_dict(), "final_model.pt")
+    #print(f"Corrects {corrects}")
+    #print(f"Totals {totals}")
+    print("Accuracy")
+    print(f"Name\tCorrects\tAccuracy")
+    for i in range(len(classes)):
+        print(f"{classes[i]}\t{corrects[i]}\t\t{corrects[i]/totals[i]}")
+    print(30*"-")
+    print(f"Sum\t{np.sum(corrects)}\t\t{np.sum(corrects)/np.sum(totals)}")
