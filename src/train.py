@@ -64,9 +64,11 @@ def trainNet(datapath='.',
         epoch_loss_array[epoch] = epoch_loss
 
     utils.plot_loss(epoch_loss_array, savedir + lossPlotName)
+    net.load_state_dict(torch.load('final_model.pt'))
 
     # Testing
     with torch.no_grad():
+        net.eval()
         test_loss = 0.
         test_images = datasets.CIFAR10('.', train=False, download=True,
                 transform=t)
@@ -78,9 +80,13 @@ def trainNet(datapath='.',
                 'horse', 'ship', 'truck']
         corrects = np.zeros(len(classes),dtype=np.int)
         totals = np.zeros(len(classes),dtype=np.int)
+        trues = np.zeros(len(test_images))
+        preds = np.zeros(len(test_images))
         for i,(img, label) in enumerate(test_data):
             optimizer.zero_grad()
             out = net(img.to(device))
+            trues[i*batch_size:(i+1)*batch_size] = label.to('cpu').numpy()
+            preds[i*batch_size:(i+1)*batch_size] = [np.argmax(o) for o in out.to('cpu').numpy()]
             for o,l in zip(out, label):
                 o = o.to('cpu').numpy()
                 l = l.to('cpu').numpy()
@@ -97,6 +103,7 @@ def trainNet(datapath='.',
                                     savedir + "examples.png")
         test_loss /= (i+1)
     print(f"Test loss {test_loss}")
+    utils.confusionMatrix(trues, preds, classes)
     torch.save(net.state_dict(), "final_model.pt")
     #print(f"Corrects {corrects}")
     #print(f"Totals {totals}")

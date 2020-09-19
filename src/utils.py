@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
@@ -27,3 +29,24 @@ def plot_examples(img_arr, pred_arr, class_list, label_arr, savename):
 def to_PIL(img):
     to_img = transforms.ToPILImage()
     return to_img(img)
+
+def confusionMatrix(true, pred, classes, savename='confusionMatrix.png'):
+    c = confusion_matrix(true, pred, labels=range(len(classes)))
+    print(c)
+    fig, ax = plt.subplots()
+    im = sns.heatmap(c,
+                     cmap='viridis',
+                     annot=True,
+                     fmt='d',
+                     cbar=False,
+                     square=True,
+                     xticklabels=classes,
+                     yticklabels=classes,
+                     )
+
+    ax.set_title(f"VGG Confusion Matrix")
+    plt.xlabel("Predicted Class")
+    plt.ylabel("True Class")
+    plt.savefig(savename)
+    plt.clf()
+
